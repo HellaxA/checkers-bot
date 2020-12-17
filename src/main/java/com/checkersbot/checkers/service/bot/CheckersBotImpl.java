@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -54,6 +51,10 @@ public class CheckersBotImpl implements CheckersBot {
                 if (checker.getColor().equals(BLACK)) {
                     int from = checker.getPosition();
 
+                    List<Checker> opponentsNearBy = findOpponentsNearBy(from, checkers, teamColor);
+
+
+
                     if (from - CHECKERS_ON_LINE >= MIN_POSITION) {
                         int to = from - CHECKERS_ON_LINE;
 
@@ -78,6 +79,8 @@ public class CheckersBotImpl implements CheckersBot {
                 if (checker.getColor().equals(RED)) {
                     int from = checker.getPosition();
 
+                    List<Checker> opponentsNearBy = findOpponentsNearBy(from, checkers, teamColor);
+
                     if (from + CHECKERS_ON_LINE <= MAX_POSITION) {
                         int to = from + CHECKERS_ON_LINE;
 
@@ -99,6 +102,90 @@ public class CheckersBotImpl implements CheckersBot {
         }
 
         return list;
+    }
+
+    private List<Checker> findOpponentsNearBy(int from, List<Checker> checkers, String teamColor) {
+        List<Checker> positionsNearBy = findPositionsNearBy(
+                Objects.requireNonNull(findCheckerByPosition(from, checkers)), checkers, teamColor
+
+        );
+
+        log.info("OPPONENTS NEAR BY " + from + " : " + positionsNearBy);
+
+        return positionsNearBy;
+    }
+
+    private List<Checker> findPositionsNearBy(Checker checkerFrom, List<Checker> checkers, String teamColor) {
+        List<Checker> res = new ArrayList<>();
+        int from = checkerFrom.getPosition();
+
+        if (checkerFrom.getRow() % 2 == 0) {
+            int leftDown = from - 3;
+            int leftUp = from - 4;
+            int rightDown = from + 5;
+            int rightUp = from + 4;
+
+            if (checkerFrom.getRow() != 0 && checkerFrom.getColumn() != 3) {
+                Checker leftDownChecker = findCheckerByPosition(leftDown, checkers);
+                if (leftDownChecker != null && !leftDownChecker.getColor().equals(teamColor)) {
+                    res.add(leftDownChecker);
+                }
+            }
+            if (checkerFrom.getRow() != 0 && checkerFrom.getColumn() != 0) {
+                Checker leftUpChecker = findCheckerByPosition(leftUp, checkers);
+                if (leftUpChecker != null && !leftUpChecker.getColor().equals(teamColor)) {
+                    res.add(leftUpChecker);
+                }
+            }
+            if (checkerFrom.getColumn() != 3) {
+                Checker rightDownChecker = findCheckerByPosition(rightDown, checkers);
+                if (rightDownChecker != null && !rightDownChecker.getColor().equals(teamColor)) {
+                    res.add(rightDownChecker);
+                }
+
+            }
+            if (checkerFrom.getColumn() != 0) {
+                Checker rightUpChecker = findCheckerByPosition(rightUp, checkers);
+                if (rightUpChecker != null && !rightUpChecker.getColor().equals(teamColor)) {
+                    res.add(rightUpChecker);
+                }
+            }
+
+
+        } else {
+            int leftDown = from - 4;
+            int leftUp = from - 5;
+            int rightDown = from + 4;
+            int rightUp = from + 3;
+
+            if (checkerFrom.getColumn() != 3) {
+                Checker leftDownChecker = findCheckerByPosition(leftDown, checkers);
+                if (leftDownChecker != null && !leftDownChecker.getColor().equals(teamColor)) {
+                    res.add(leftDownChecker);
+                }
+            }
+
+            if (checkerFrom.getColumn() != 0 && checkerFrom.getRow() != 1) {
+                Checker leftUpChecker = findCheckerByPosition(leftUp, checkers);
+                if (leftUpChecker != null && !leftUpChecker.getColor().equals(teamColor)) {
+                    res.add(leftUpChecker);
+                }
+            }
+            if (checkerFrom.getRow() != 7 && checkerFrom.getColumn() != 3 && checkerFrom.getRow() != 6) {
+                Checker rightDownChecker = findCheckerByPosition(rightDown, checkers);
+                if (rightDownChecker != null && !rightDownChecker.getColor().equals(teamColor)) {
+                    res.add(rightDownChecker);
+                }
+            }
+            if (checkerFrom.getRow() != 7 && checkerFrom.getColumn() != 0) {
+                Checker rightUpChecker = findCheckerByPosition(rightUp, checkers);
+                if (rightUpChecker != null && !rightUpChecker.getColor().equals(teamColor)) {
+                    res.add(rightUpChecker);
+                }
+            }
+        }
+
+        return res;
     }
 
     private void checkPosAndAddToList(List<Checker> checkers, String teamColor,
