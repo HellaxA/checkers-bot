@@ -9,4 +9,5 @@ import lombok.RequiredArgsConstructor;
 public class Move {
     @NonNull private int from;
     @NonNull private int to;
+    @NonNull private int priority;
 }
