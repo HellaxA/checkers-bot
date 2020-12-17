@@ -38,9 +38,18 @@ public class CheckersBotImpl implements CheckersBot {
         GameDto theGameDto = restService.getGameDtoPlainJSON();
         Checker[] checkers = theGameDto.getData().getBoard();
 
-        List<Move> list = getAllMovesForParticularTeam(Arrays.asList(checkers), teamColor);
+        List<Move> allMovesForParticularTeam = getAllMovesForParticularTeam(Arrays.asList(checkers), teamColor);
+        List<Move> allMovesOnlyWithHighPriority = new ArrayList<>();
+        allMovesForParticularTeam
+                .stream()
+                .filter((move -> move.getPriority() != 0))
+                .forEach(allMovesOnlyWithHighPriority::add);
 
-        return list;
+        if (allMovesOnlyWithHighPriority.isEmpty()) {
+            return allMovesForParticularTeam;
+        }
+
+        return allMovesOnlyWithHighPriority;
     }
 
     private List<Move> getAllMovesForParticularTeam(List<Checker> checkers, String teamColor) {
@@ -107,8 +116,6 @@ public class CheckersBotImpl implements CheckersBot {
                 Objects.requireNonNull(findCheckerByPosition(from, checkers)), checkers, teamColor
 
         );
-
-        log.info("OPPONENTS NEAR BY " + from + " : " + positionsNearBy);
 
         return positionsNearBy;
     }
@@ -273,5 +280,4 @@ public class CheckersBotImpl implements CheckersBot {
 
         return null;
     }
-
 }
